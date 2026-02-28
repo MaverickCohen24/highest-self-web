@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Sun, Moon, CheckSquare, Activity,
-  Map, Palette, BookOpen, BarChart3, Flame, LogOut
+  Map, Palette, BookOpen, BarChart3, Flame, LogOut, ScrollText
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -19,6 +19,7 @@ const NAV = [
   { to: '/creative', icon: Palette, label: 'Creative' },
   { to: '/reflections', icon: BookOpen, label: 'Reflect' },
   { to: '/weekly', icon: BarChart3, label: 'Weekly' },
+  { to: '/journal', icon: ScrollText, label: 'Journal' },
 ]
 
 export default function Sidebar() {

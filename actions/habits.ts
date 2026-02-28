@@ -10,6 +10,18 @@ async function getUserId() {
   return user.id
 }
 
+function calcStreak(completions: { date: string }[], today: string): number {
+  let streak = 0
+  let check = new Date(today + 'T12:00:00')
+  for (const c of completions) {
+    const d = new Date(c.date + 'T12:00:00')
+    const diff = Math.round((check.getTime() - d.getTime()) / 86400000)
+    if (diff === 0 || diff === 1) { streak++; check = d }
+    else break
+  }
+  return streak
+}
+
 export async function getHabits() {
   const userId = await getUserId()
   return prisma.habit.findMany({
@@ -21,6 +33,8 @@ export async function getHabits() {
 export async function createHabit(data: {
   name: string
   identityStatement?: string
+  implementation?: string
+  habitStack?: string
   cue?: string
   craving?: string
   response?: string
@@ -44,16 +58,25 @@ export async function getCompletionsForDate(date: string) {
   const habits = await prisma.habit.findMany({
     where: { userId, archivedAt: null },
     include: {
-      completions: { where: { date } },
+      completions: {
+        where: { completed: true },
+        orderBy: { date: 'desc' },
+        take: 365,
+      },
     },
     orderBy: { createdAt: 'asc' },
   })
-  return habits.map((h: typeof habits[number]) => ({
-    ...h,
-    completed: h.completions[0]?.completed ?? false,
-    satisfaction: h.completions[0]?.satisfaction ?? null,
-    completionId: h.completions[0]?.id ?? null,
-  }))
+  return habits.map((h: typeof habits[number]) => {
+    const todayComp = h.completions.find((c: { date: string }) => c.date === date)
+    const streak = calcStreak(h.completions, date)
+    return {
+      ...h,
+      completed: todayComp?.completed ?? false,
+      satisfaction: todayComp?.satisfaction ?? null,
+      completionId: todayComp?.id ?? null,
+      streak,
+    }
+  })
 }
 
 export async function setHabitCompletion(
@@ -63,26 +86,10 @@ export async function setHabitCompletion(
   await prisma.habitCompletion.upsert({
     where: { habitId_date: { habitId, date } },
     create: { habitId, userId, date, completed, satisfaction },
-    update: { completed, satisfaction },
+    update: { completed, ...(satisfaction !== undefined ? { satisfaction } : {}) },
   })
   revalidatePath('/habits')
   revalidatePath('/dashboard')
-}
-
-export async function getHabitStreak(habitId: string): Promise<number> {
-  const completions = await prisma.habitCompletion.findMany({
-    where: { habitId, completed: true },
-    orderBy: { date: 'desc' },
-  })
-  let streak = 0
-  let checkDate = new Date()
-  for (const c of completions) {
-    const d = new Date(c.date + 'T12:00:00')
-    const diff = Math.floor((checkDate.getTime() - d.getTime()) / 86400000)
-    if (diff === 0 || diff === 1) { streak++; checkDate = d }
-    else break
-  }
-  return streak
 }
 
 export async function getTodayHabitCount(date: string) {

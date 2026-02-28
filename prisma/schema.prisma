@@ -63,6 +63,8 @@ model Habit {
   userId            String
   name              String
   identityStatement String?
+  implementation    String?
+  habitStack        String?
   cue               String?
   craving           String?
   response          String?
@@ -227,4 +229,21 @@ model LifeTask {
   createdAt DateTime @default(now())
 
   @@map("life_tasks")
+}
+
+model ConsumptionLog {
+  id                 String   @id @default(cuid())
+  userId             String
+  date               String
+  phoneMinutes       Int?
+  socialMediaMinutes Int?
+  mainApps           String?
+  contentQuality     Int?
+  mentalImpact       String?
+  whatTriggered      String?
+  intention          String?
+  createdAt          DateTime @default(now())
+
+  @@unique([userId, date])
+  @@map("consumption_logs")
 }

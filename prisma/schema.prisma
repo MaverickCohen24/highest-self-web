@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model DailyEntry {
+  id               String      @id @default(cuid())
+  userId           String
+  date             String
+  morningCompleted Boolean     @default(false)
+  eveningCompleted Boolean     @default(false)
+  mood             Int?
+  energy           Int?
+  createdAt        DateTime    @default(now())
+  morningLog       MorningLog?
+  eveningLog       EveningLog?
+
+  @@unique([userId, date])
+  @@map("daily_entries")
+}
+
+model MorningLog {
+  id                   String     @id @default(cuid())
+  entryId              String     @unique
+  wakeTime             String?
+  sunlightMinutes      Int        @default(0)
+  caffeineDelayed90min Boolean    @default(false)
+  coldExposure         Boolean    @default(false)
+  meditationMinutes    Int        @default(0)
+  exerciseDone         Boolean    @default(false)
+  exerciseType         String?
+  exerciseDuration     Int?
+  intention            String?
+  identityAffirmation  String?
+  creativeObservation  String?
+  top3                 String?
+  entry                DailyEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@map("morning_logs")
+}
+
+model EveningLog {
+  id               String     @id @default(cuid())
+  entryId          String     @unique
+  wins             String?
+  lessons          String?
+  ownedFailure     String?
+  emotionalPattern String?
+  shadowInsight    String?
+  creativeCapture  String?
+  tomorrowFocus    String?
+  sleepTargetTime  String?
+  entry            DailyEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@map("evening_logs")
+}
+
+model Habit {
+  id                String            @id @default(cuid())
+  userId            String
+  name              String
+  identityStatement String?
+  cue               String?
+  craving           String?
+  response          String?
+  reward            String?
+  twoMinuteVersion  String?
+  frequency         String            @default("daily")
+  archivedAt        DateTime?
+  createdAt         DateTime          @default(now())
+  completions       HabitCompletion[]
+
+  @@map("habits")
+}
+
+model HabitCompletion {
+  id           String  @id @default(cuid())
+  habitId      String
+  userId       String
+  date         String
+  completed    Boolean @default(false)
+  satisfaction Int?
+  notes        String?
+  habit        Habit   @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@map("habit_completions")
+}
+
+model Workout {
+  id               String   @id @default(cuid())
+  userId           String
+  date             String
+  type             String
+  galpinAdaptation String?
+  durationMin      Int?
+  intensity        Int?
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  @@map("workouts")
+}
+
+model SleepLog {
+  id      String  @id @default(cuid())
+  userId  String
+  date    String
+  bedtime String?
+  wakeTime String?
+  quality Int?
+  notes   String?
+
+  @@unique([userId, date])
+  @@map("sleep_logs")
+}
+
+model Skill {
+  id                 String           @id @default(cuid())
+  userId             String
+  name               String
+  lifeTaskConnection String?
+  phase              String           @default("Apprentice")
+  createdAt          DateTime         @default(now())
+  sessions           MasterySession[]
+
+  @@map("skills")
+}
+
+model MasterySession {
+  id           String   @id @default(cuid())
+  skillId      String
+  userId       String
+  date         String
+  minutes      Int      @default(0)
+  breakthrough String?
+  obstacle     String?
+  mentorNotes  String?
+  skill        Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@map("mastery_sessions")
+}
+
+model CreativeEntry {
+  id           String   @id @default(cuid())
+  userId       String
+  date         String
+  prompt       String?
+  content      String?
+  medium       String?
+  observations String?
+  createdAt    DateTime @default(now())
+
+  @@map("creative_entries")
+}
+
+model CreativeProject {
+  id          String      @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  status      String      @default("active")
+  createdAt   DateTime    @default(now())
+  ideas       QuickIdea[]
+
+  @@map("creative_projects")
+}
+
+model QuickIdea {
+  id        String           @id @default(cuid())
+  userId    String
+  content   String
+  projectId String?
+  project   CreativeProject? @relation(fields: [projectId], references: [id])
+  createdAt DateTime         @default(now())
+
+  @@map("quick_ideas")
+}
+
+model Reflection {
+  id         String   @id @default(cuid())
+  userId     String
+  date       String
+  promptType String?
+  content    String?
+  lawRef     String?
+  patternTag String?
+  createdAt  DateTime @default(now())
+
+  @@map("reflections")
+}
+
+model WeeklyReview {
+  id                String   @id @default(cuid())
+  userId            String
+  weekStart         String
+  wins              String?
+  patterns          String?
+  protocolScore     Float?
+  habitScore        Float?
+  masteryHours      Float?
+  creativeOutput    String?
+  strategicLesson   String?
+  identityEvolution String?
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, weekStart])
+  @@map("weekly_reviews")
+}
+
+model IdentityStatement {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("identity_statements")
+}
+
+model LifeTask {
+  id        String   @id @default(cuid())
+  userId    String
+  statement String
+  createdAt DateTime @default(now())
+
+  @@map("life_tasks")
+}

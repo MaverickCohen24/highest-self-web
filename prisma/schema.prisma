@@ -70,6 +70,7 @@ model Habit {
   response          String?
   reward            String?
   twoMinuteVersion  String?
+  type              String            @default("build")
   frequency         String            @default("daily")
   archivedAt        DateTime?
   createdAt         DateTime          @default(now())

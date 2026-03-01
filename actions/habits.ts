@@ -40,6 +40,7 @@ export async function createHabit(data: {
   response?: string
   reward?: string
   twoMinuteVersion?: string
+  type?: string
   frequency?: string
 }) {
   const userId = await getUserId()

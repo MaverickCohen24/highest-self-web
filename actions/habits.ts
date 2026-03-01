@@ -95,9 +95,11 @@ export async function setHabitCompletion(
 
 export async function getTodayHabitCount(date: string) {
   const userId = await getUserId()
-  const total = await prisma.habit.count({ where: { userId, archivedAt: null } })
-  const done = await prisma.habitCompletion.count({
-    where: { userId, date, completed: true }
-  })
-  return { total, done }
+  const [buildTotal, breakTotal, buildDone, breakDone] = await Promise.all([
+    prisma.habit.count({ where: { userId, archivedAt: null, type: 'build' } }),
+    prisma.habit.count({ where: { userId, archivedAt: null, type: 'break' } }),
+    prisma.habitCompletion.count({ where: { userId, date, completed: true, habit: { type: 'build' } } }),
+    prisma.habitCompletion.count({ where: { userId, date, completed: true, habit: { type: 'break' } } }),
+  ])
+  return { buildTotal, buildDone, breakTotal, breakDone }
 }

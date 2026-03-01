@@ -1,11 +1,11 @@
 'use client'
 import Link from 'next/link'
-import { Sun, Moon, CheckSquare, Activity, ChevronRight, Flame, Quote } from 'lucide-react'
+import { Sun, Moon, CheckSquare, Activity, ChevronRight, Flame, Quote, ShieldCheck } from 'lucide-react'
 
 interface Props {
   date: string
   entry: { morningCompleted: boolean; eveningCompleted: boolean } | null
-  habitCount: { total: number; done: number }
+  habitCount: { buildTotal: number; buildDone: number; breakTotal: number; breakDone: number }
   masteryHours: number
   identity: { content: string } | null
   skillCount: number
@@ -42,12 +42,15 @@ function Ring({ pct, color, icon, label, href }: {
 export default function DashboardClient({ date, entry, habitCount, masteryHours, identity, skillCount, formattedDate }: Props) {
   const morningPct = entry?.morningCompleted ? 100 : 0
   const eveningPct = entry?.eveningCompleted ? 100 : 0
-  const habitsPct = habitCount.total > 0 ? (habitCount.done / habitCount.total) * 100 : 0
+  const { buildTotal, buildDone, breakTotal, breakDone } = habitCount
+  const buildPct = buildTotal > 0 ? (buildDone / buildTotal) * 100 : 0
+  const breakPct = breakTotal > 0 ? (breakDone / breakTotal) * 100 : 0
 
   const incomplete = [
     !entry?.morningCompleted && { label: 'Morning Ritual', href: '/morning', icon: <Sun className="w-4 h-4" strokeWidth={1.5} /> },
     !entry?.eveningCompleted && { label: 'Evening Review', href: '/evening', icon: <Moon className="w-4 h-4" strokeWidth={1.5} /> },
-    habitCount.done < habitCount.total && { label: `Habits (${habitCount.done}/${habitCount.total})`, href: '/habits', icon: <CheckSquare className="w-4 h-4" strokeWidth={1.5} /> },
+    buildDone < buildTotal && { label: `Build habits (${buildDone}/${buildTotal})`, href: '/habits', icon: <CheckSquare className="w-4 h-4" strokeWidth={1.5} /> },
+    breakTotal > 0 && breakDone < breakTotal && { label: `Break habits (${breakDone}/${breakTotal} resisted)`, href: '/habits', icon: <ShieldCheck className="w-4 h-4" strokeWidth={1.5} /> },
   ].filter(Boolean) as Array<{ label: string; href: string; icon: React.ReactNode }>
 
   return (
@@ -72,7 +75,8 @@ export default function DashboardClient({ date, entry, habitCount, masteryHours,
           <div className="flex justify-around">
             <Ring pct={morningPct} color="#c9a84c" icon={<Sun className="w-5 h-5" strokeWidth={1.5} />} label="Morning" href="/morning" />
             <Ring pct={eveningPct} color="#8b7ab8" icon={<Moon className="w-5 h-5" strokeWidth={1.5} />} label="Evening" href="/evening" />
-            <Ring pct={habitsPct} color="#6b8f71" icon={<CheckSquare className="w-5 h-5" strokeWidth={1.5} />} label="Habits" href="/habits" />
+            <Ring pct={buildPct} color="#6b8f71" icon={<CheckSquare className="w-5 h-5" strokeWidth={1.5} />} label="Build" href="/habits" />
+            <Ring pct={breakPct} color="#c47b5e" icon={<ShieldCheck className="w-5 h-5" strokeWidth={1.5} />} label="Break" href="/habits" />
             <Ring pct={0} color="#6b7fa3" icon={<Activity className="w-5 h-5" strokeWidth={1.5} />} label="Protocols" href="/protocols" />
           </div>
         </div>
@@ -83,12 +87,12 @@ export default function DashboardClient({ date, entry, habitCount, masteryHours,
             <div className="text-xs text-[#5a5855] mt-1">mastery hrs / week</div>
           </div>
           <div className="card text-center">
-            <div className="text-2xl font-light text-[#6b8f71]">{habitCount.done}</div>
-            <div className="text-xs text-[#5a5855] mt-1">habits done today</div>
+            <div className="text-2xl font-light text-[#6b8f71]">{buildDone}<span style={{ fontSize: '1rem', color: '#3a3a3a' }}>/{buildTotal}</span></div>
+            <div className="text-xs text-[#5a5855] mt-1">habits built today</div>
           </div>
           <div className="card text-center">
-            <div className="text-2xl font-light text-[#8b7ab8]">{skillCount}</div>
-            <div className="text-xs text-[#5a5855] mt-1">skills in practice</div>
+            <div className="text-2xl font-light text-[#c47b5e]">{breakDone}<span style={{ fontSize: '1rem', color: '#3a3a3a' }}>/{breakTotal}</span></div>
+            <div className="text-xs text-[#5a5855] mt-1">bad habits resisted</div>
           </div>
         </div>
 

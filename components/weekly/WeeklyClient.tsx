@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { formatDate } from '@/lib/utils'
 
 type ProtocolScore = { sleepDays: number; workoutDays: number; meditationDays: number }
-type HabitCount = { total: number; done: number }
+type HabitCount = { buildTotal: number; buildDone: number; breakTotal: number; breakDone: number }
 type WeeklyReview = {
   wins: string | null; patterns: string | null; strategicLesson: string | null;
   identityEvolution: string | null; creativeOutput: string | null
@@ -41,7 +41,7 @@ export default function WeeklyClient({ weekStart, weekEnd, masteryHours, protoco
         identityEvolution: identity || undefined,
         creativeOutput: creative || undefined,
         masteryHours,
-        habitScore: habitCount.total > 0 ? Math.round((habitCount.done / habitCount.total) * 100) : 0,
+        habitScore: (habitCount.buildTotal + habitCount.breakTotal) > 0 ? Math.round(((habitCount.buildDone + habitCount.breakDone) / (habitCount.buildTotal + habitCount.breakTotal)) * 100) : 0,
         protocolScore: Math.round(((protocolScore.sleepDays + protocolScore.workoutDays + protocolScore.meditationDays) / 21) * 100),
       })
       setSaved(true)
@@ -55,7 +55,9 @@ export default function WeeklyClient({ weekStart, weekEnd, masteryHours, protoco
     { name: 'Meditation', value: protocolScore.meditationDays, max: 7 },
   ]
 
-  const habitPct = habitCount.total > 0 ? Math.round((habitCount.done / habitCount.total) * 100) : 0
+  const habitPct = (habitCount.buildTotal + habitCount.breakTotal) > 0
+    ? Math.round(((habitCount.buildDone + habitCount.breakDone) / (habitCount.buildTotal + habitCount.breakTotal)) * 100)
+    : 0
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">

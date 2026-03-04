@@ -40,6 +40,8 @@ function Ring({ pct, color, icon, label, href }: {
 }
 
 export default function DashboardClient({ date, entry, habitCount, masteryHours, identity, skillCount, formattedDate }: Props) {
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning.' : hour < 17 ? 'Good afternoon.' : 'Good evening.'
   const morningPct = entry?.morningCompleted ? 100 : 0
   const eveningPct = entry?.eveningCompleted ? 100 : 0
   const { buildTotal, buildDone, breakTotal, breakDone } = habitCount
@@ -57,7 +59,7 @@ export default function DashboardClient({ date, entry, habitCount, masteryHours,
     <div className="flex flex-col h-full overflow-y-auto">
       <div className="px-8 pt-10 pb-4">
         <p className="text-[#5a5855] text-sm mb-1">{formattedDate}</p>
-        <h1 className="text-2xl font-semibold text-[#e8e6e3]">Good morning.</h1>
+        <h1 className="text-2xl font-semibold text-[#e8e6e3]">{greeting}</h1>
       </div>
 
       <div className="px-8 py-4 space-y-6 max-w-2xl">

@@ -1,4 +1,4 @@
-import { today, getWeekStart, getWeekEnd } from '@/lib/utils'
+import { getUserDate, getWeekStart, getWeekEnd } from '@/lib/utils'
 import { getWeeklyMasteryHours } from '@/actions/mastery'
 import { getWeeklyProtocolScore } from '@/actions/protocols'
 import { getTodayHabitCount } from '@/actions/habits'
@@ -6,8 +6,8 @@ import { getWeeklyReview } from '@/actions/reflections'
 import WeeklyClient from '@/components/weekly/WeeklyClient'
 
 export default async function WeeklyPage() {
-  const date = today()
-  const ws = getWeekStart()
+  const date = await getUserDate()
+  const ws = getWeekStart(date)
   const we = getWeekEnd(ws)
 
   const [masteryHours, protocolScore, habitCount, existingReview] = await Promise.all([

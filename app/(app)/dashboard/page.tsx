@@ -1,12 +1,12 @@
-import { today, formatDate, getWeekStart, getWeekEnd } from '@/lib/utils'
+import { getUserDate, formatDate, getWeekStart, getWeekEnd } from '@/lib/utils'
 import { getOrCreateDailyEntry } from '@/actions/daily'
 import { getTodayHabitCount } from '@/actions/habits'
 import { getWeeklyMasteryHours, getIdentityStatements, getSkills } from '@/actions/mastery'
 import DashboardClient from '@/components/dashboard/DashboardClient'
 
 export default async function DashboardPage() {
-  const date = today()
-  const ws = getWeekStart()
+  const date = await getUserDate()
+  const ws = getWeekStart(date)
   const we = getWeekEnd(ws)
 
   const [entry, habitCount, masteryHours, identityStatements, skills] = await Promise.all([

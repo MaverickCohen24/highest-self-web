@@ -4,6 +4,14 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
 
 export const today = (): string => new Date().toISOString().split('T')[0]
 
+export async function getUserDate(): Promise<string> {
+  const { cookies } = await import('next/headers')
+  const cookieStore = await cookies()
+  const tz = cookieStore.get('tz')?.value
+  if (!tz) return today()
+  return new Intl.DateTimeFormat('en-CA', { timeZone: decodeURIComponent(tz) }).format(new Date())
+}
+
 export const formatDate = (date: string): string =>
   new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric'
